@@ -108,7 +108,7 @@ npm run build:dir
 #### 第一步：生成卡通风格形象照
 
 使用 AI 图像生成工具，将你的生活照转换为卡通风格的全身照片。
-![alt text](man.jpeg)
+![alt text](assets/man.jpeg)
 
 **推荐工具：**
 
@@ -245,8 +245,9 @@ npm run build:dir
 
 2. **设置 API Key**
    - 点击 ⚙️ 设置图标
-   - 填写 API 地址（如使用 OpenAI 官方：`https://api.openai.com/v1`）
+   - 填写聊天 API 地址（如使用 阿里百炼 官方：`https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions`）
    - 填写 API Key
+   - 填写模型 `qwen-turbo-latest`聊天对话很快
 
 3. **设置伙伴性格**
    - 打开性格设定面板
