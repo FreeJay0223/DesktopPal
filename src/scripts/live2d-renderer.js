@@ -321,14 +321,14 @@ class Live2DRenderer {
     this.motionTimer = setInterval(() => {
       if (!this.isInteracting && this.model) {
         const random = Math.random();
-        if (random < 0.15) {
-          // 15% 几率播放非待机动作
+        if (random < 0.08) {
+          // 8% 几率播放非待机动作
           const motions = ['tap_body', 'flick_head', 'shake'];
           const randomMotion = motions[Math.floor(Math.random() * motions.length)];
           this.playMotion(randomMotion, 2);
         }
       }
-    }, 5000);
+    }, 8000);
   }
 
   /**

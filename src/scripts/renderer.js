@@ -430,12 +430,12 @@ function initSVG() {
   
   // 添加动画状态切换
   setInterval(() => {
-    if (!state.isDragging && state.petMode === 'svg' && Math.random() < 0.1) {
+    if (!state.isDragging && state.petMode === 'svg' && Math.random() < 0.05) {
       const animations = ['idle', 'happy', 'blink', 'wag'];
       const nextAnim = animations[Math.floor(Math.random() * animations.length)];
       setAnimation(nextAnim);
     }
-  }, 3000);
+  }, 5000);
 }
 
 // 创建狗狗SVG
@@ -740,11 +740,11 @@ function initDrag() {
     }
   });
   
-  // 悬停效果（带防抖，3秒内不重复触发）
+  // 悬停效果（带防抖，20秒内不重复触发）
   let lastHoverTime = 0;
   pet.addEventListener('mouseenter', () => {
     const now = Date.now();
-    if (now - lastHoverTime < 3000) return;
+    if (now - lastHoverTime < 20000) return;
     lastHoverTime = now;
 
     // 触发AI主动说话
