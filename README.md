@@ -1,4 +1,4 @@
-# 🐾 桌面伙伴 (Desktop Friend)
+# 🐾 桌面伙伴 (DesktopPal)
 
 > 你的 Windows 桌面 AI 智能伙伴 - 基于 Electron + Live2D/GLTF 的桌面宠物应用
 >
@@ -159,18 +159,18 @@ npm run build:dir
 5. 选择动作库或生成自定义动作
 6. 导出带动画的 GLB 文件
 
-详细操作步骤：
-1.选择页面上方选择Use Your Model，Upload上一步的得到的glb模型，点击auto-align to floor 把任务和地板对齐，点上方按Y轴旋转，让人物面向蓝色z轴方向；
-![alt text](image.png)
-![alt text](image-1.png)
-2.Skeleton template选择Human-Single Hand Bone（人类，单手骨即没手指细节）,调整骨架比例Scale skeleton，让骨架基本和模型重合，一般是到54%左右；
-![alt text](image-2.png)
-3.点编辑骨骼（Edit Skeleton）,参考标准人形骨骼（Use Your Mode页面不Upload直接load就可以看到标准模型的骨骼绑定细节），把骨骼调整到和模型关节重合；
-![alt text](image-5.png)
-![alt text](image-6.png)
-![alt text](image-3.png)
-4.点击finish完成，勾选要导出的动作，点击export，导出glb模型,请保存好；
-![alt text](image-4.png)
+**绑定骨骼详细操作步骤：**：
+1. 选择页面上方选择Use Your Model，Upload上一步的得到的glb模型，点击auto-align to floor 把任务和地板对齐，点上方按Y轴旋转，让人物面向蓝色z轴方向；
+![alt text](assets/image.png)
+![alt text](assets/image-1.png)
+2. Skeleton template选择Human-Single Hand Bone（人类，单手骨即没手指细节）,调整骨架比例Scale skeleton，让骨架基本和模型重合，一般是到54%左右；
+![alt text](assets/image-2.png)
+3. 点编辑骨骼（Edit Skeleton）,参考标准人形骨骼（Use Your Mode页面不Upload直接load就可以看到标准模型的骨骼绑定细节），把骨骼调整到和模型关节重合；
+![alt text](assets/image-5.png)
+![alt text](assets/image-6.png)
+![alt text](assets/image-3.png)
+4. 点击finish完成，勾选要导出的动作，点击export，导出glb模型,请保存好；
+![alt text](assets/image-4.png)
 
 
 ---

@@ -1,4 +1,4 @@
-# 🐾 Desktop Friend
+# 🐾 DesktopPal
 
 > Your Windows Desktop AI Companion - An Electron + Live2D/GLTF Desktop Pet Application
 >
@@ -161,7 +161,7 @@ Use open-source tools to bind skeleton to static model and generate animated GLB
 5. Select animation library or generate custom animations
 6. Export animated GLB file
 
-> 💡 **Alternative**: If skeleton binding fails, use [Mixamo](https://www.mixamo.com/) for free skeleton binding and animation download.
+
 
 ---
 
