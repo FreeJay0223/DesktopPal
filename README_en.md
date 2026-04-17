@@ -41,6 +41,12 @@
 
 ---
 
+## 🎬 Demo
+
+![Demo](assets/demo.gif)
+
+---
+
 ## 🎯 Quick Overview (6 Steps to Your AI Companion)
 
 Want an AI desktop companion based on your likeness? Just 6 steps:
