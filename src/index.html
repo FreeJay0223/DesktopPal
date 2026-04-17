@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桌面伙伴</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <!-- 角色容器 - 模型渲染区域 -->
+  <div id="pet-container">
+    <div id="pet" class="pet">
+      <!-- Live2D容器 -->
+      <div id="live2d-container" style="display:none; width:100%; height:100%;"></div>
+      <!-- SVG容器（默认/备用） -->
+      <div id="svg-container"></div>
+    </div>
+    <!-- 状态气泡 - 放在 pet-container 内，显示在模型上方 -->
+    <div id="status-bubble" class="status-bubble hidden">
+      <span id="status-text">开心~</span>
+    </div>
+    <!-- 工具栏 - 默认显示，固定在模型右侧 -->
+    <div id="toolbar" class="toolbar">
+      <div class="toolbar-btn" data-action="chat" title="聊天">💬</div>
+      <div class="toolbar-btn" data-action="models" title="形象">🎭</div>
+      <div class="toolbar-btn" data-action="todo" title="待办">📋</div>
+      <div class="toolbar-btn" data-action="timer" title="计时">⏱️</div>
+      <div class="toolbar-btn" data-action="quick" title="快捷">⚡</div>
+      <div class="toolbar-btn" data-action="settings" title="设置">⚙️</div>
+    </div>
+  </div>
+
+  <!-- 旧菜单保留用于兼容性（可后续移除） -->
+  <div id="context-menu" class="context-menu hidden" style="display:none;"></div>
+
+  <!-- 功能面板 - 移到 body 下，不受窗口边界限制 -->
+  <div id="chat-panel" class="panel hidden">
+    <div class="panel-header">
+      <span>💬 对话</span>
+      <button class="close-btn" data-panel="chat-panel">×</button>
+    </div>
+    <div class="panel-body">
+      <div id="chat-messages" class="chat-messages"></div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="说点什么..." />
+        <button id="chat-send">发送</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="todo-panel" class="panel hidden">
+    <div class="panel-header">
+      <span>📋 待办事项</span>
+      <button class="close-btn" data-panel="todo-panel">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="todo-input-area">
+        <input type="text" id="todo-input" placeholder="添加待办..." />
+        <button id="todo-add">添加</button>
+      </div>
+      <div id="todo-list" class="todo-list"></div>
+    </div>
+  </div>
+  
+  <div id="timer-panel" class="panel hidden">
+    <div class="panel-header">
+      <span>⏱️ 番茄钟</span>
+      <button class="close-btn" data-panel="timer-panel">×</button>
+    </div>
+    <div class="panel-body timer-body">
+      <div id="timer-display">25:00</div>
+      <div class="timer-controls">
+        <button id="timer-start">开始</button>
+        <button id="timer-pause">暂停</button>
+        <button id="timer-reset">重置</button>
+      </div>
+      <div class="timer-presets">
+        <button data-minutes="25">25分钟</button>
+        <button data-minutes="15">15分钟</button>
+        <button data-minutes="5">5分钟</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="quick-panel" class="panel hidden">
+    <div class="panel-header">
+      <span>⚡ 快捷操作</span>
+      <button class="close-btn" data-panel="quick-panel">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="quick-grid">
+        <div class="quick-item" data-action="open-notepad">📝 记事本</div>
+        <div class="quick-item" data-action="open-calculator">🔢 计算器</div>
+        <div class="quick-item" data-action="open-explorer">📁 文件管理</div>
+        <div class="quick-item" data-action="open-browser">🌐 浏览器</div>
+        <div class="quick-item" data-action="screenshot">📸 截图</div>
+        <div class="quick-item" data-action="clipboard">📋 剪贴板</div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="translate-panel" class="panel hidden">
+    <div class="panel-header">
+      <span>🌐 翻译/摘要</span>
+      <button class="close-btn" data-panel="translate-panel">×</button>
+    </div>
+    <div class="panel-body">
+      <textarea id="translate-input" placeholder="输入或粘贴文本..."></textarea>
+      <div class="translate-buttons">
+        <button id="translate-btn">翻译</button>
+        <button id="summarize-btn">摘要</button>
+      </div>
+      <div id="translate-result" class="translate-result"></div>
+    </div>
+  </div>
+
+  <!-- 脚本 -->
+  <!-- Three.js 3D渲染（可选，按需加载） -->
+  <script>
+    // 延迟加载Three.js
+    window.loadThreeJS = function() {
+      return new Promise((resolve) => {
+        if (typeof THREE !== 'undefined' && THREE.GLTFLoader) {
+          resolve();
+          return;
+        }
+        
+        // 加载Three.js
+        const threeScript = document.createElement('script');
+        threeScript.src = 'scripts/three.min.js';
+        threeScript.onload = () => {
+          console.log('Three.js loaded');
+          
+          // 加载官方GLTFLoader bundle（已通过rollup打包，包含完整实现）
+          const loaderScript = document.createElement('script');
+          loaderScript.src = 'scripts/GLTFLoader.bundle.js';
+          loaderScript.onload = () => {
+            console.log('GLTFLoader bundle loaded, THREE.GLTFLoader:', !!THREE.GLTFLoader);
+            
+            // 加载GLTF渲染器
+            const rendererScript = document.createElement('script');
+            rendererScript.src = 'scripts/gltf-renderer.js';
+            rendererScript.onload = () => {
+              console.log('GLTFRenderer loaded');
+              resolve();
+            };
+            rendererScript.onerror = () => {
+              console.error('Failed to load GLTFRenderer');
+              resolve(); // 继续即使失败
+            };
+            document.head.appendChild(rendererScript);
+          };
+          loaderScript.onerror = () => {
+            console.error('Failed to load GLTFLoader bundle');
+            resolve(); // 继续即使失败
+          };
+          document.head.appendChild(loaderScript);
+        };
+        threeScript.onerror = () => {
+          console.error('Failed to load Three.js');
+          resolve(); // 继续即使失败
+        };
+        document.head.appendChild(threeScript);
+      });
+    };
+  </script>
+  <!-- 智能图片动画 -->
+  <script src="scripts/smart-image-animator.js"></script>
+  <!-- 主渲染器 -->
+  <script src="scripts/renderer.js"></script>
+</body>
+</html>

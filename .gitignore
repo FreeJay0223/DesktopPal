@@ -1,0 +1,195 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+build/
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log.*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# User configuration (should not be committed)
+config.json
+*.config.json
+settings.json
+*.local
+
+# Models (exclude user uploaded models)
+models/*.glb
+models/*.gltf
+models/*.model3.json
+models/*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+Thumbs.db:Encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editors - VS Code
+.vscode/
+*.code-workspace
+
+# Editors - JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Editors - Sublime Text
+*.sublime-*
+Packages/
+*.bak
+
+# Editors - Vim
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Editors - Emacs
+*~
+\#*\#
+.\#*
+
+# Editors - Atom
+.atom/
+*.atom.edited
+*.atom.bak
+
+# Editors - Notepad++
+*.bak
+
+# Editors - Eclipse
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.localhistory
+
+# AI Tools & LLM caches
+.ai/
+.cody/
+.cody/**/*
+.codebuddy/
+.codebuddy/**/*
+.cache/
+llama_cache/
+ollama/
+openai_cache/
+.ai-code/
+copilot/
+
+# AI coding assistants - Claude, Copilot, etc.
+.claude/
+.claude/**/*
+.copilot/**/*
+.vscodeAI/
+.vscode-ai/
+.aider/
+.aider/**/*
+.workbuddy/
+.workbuddy/**/*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+~*
+
+# Cache directories
+.cache/
+.npm/
+.yarn/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+tsconfig.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Development documentation
+打包*.md
+用户*.md
+README-dev.md
+DEVELOPMENT.md
+*.notes
+*.memo
+
+# TypeScript compilation
+*.tsbuildinfo
+
+# Electron specific
+*.asar
+*.asar.unpacked
+electron-builder.yml
+
+# Security - never commit these
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# Package locks (optional - some teams prefer to commit these)
+# package-lock.json
+# yarn.lock
+
+# Git internal
+.git/
+.gitignore is the only file we want from the root
+!.gitignore
+
+# Development scripts
+*.ps1
+*.sh
+*.bat
+*.cmd
+
+# Model files (exclude large model files)
+*.bin
+*.model
+!assets/*.bin
+!assets/*.model
+
+# Temporary directories
+temp/
+tmp/
+temp-build/
+build-temp/
+check-package/
+temp-check/
+
+# Browser caches (if any in project)
+*.crdownload
+*.partial
+

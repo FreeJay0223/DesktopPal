@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设置</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 100vh;
+    }
+    
+    .settings-container {
+      max-width: 100%;
+    }
+    
+    .settings-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .settings-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid;
+      border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+      font-size: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group .hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+    
+    .form-group.checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-group.checkbox input {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.2s;
+      line-height: 1.5;
+    }
+    
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .preview-btn {
+      width: 100%;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .preview-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+    
+    .prompt-preview {
+      margin-top: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #444;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .prompt-preview.hidden {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+    
+    .skill-import-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(102, 126, 234, 0.05);
+      border: 1px dashed rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+    }
+    
+    .skill-file-info {
+      flex: 1;
+      font-size: 13px;
+      color: #555;
+      overflow: hidden;
+    }
+    
+    .skill-file-info .skill-placeholder {
+      color: #bbb;
+    }
+    
+    .skill-file-info .skill-loaded {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .skill-file-info .skill-name {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .skill-file-info .skill-size {
+      color: #999;
+      font-size: 12px;
+    }
+    
+    .skill-actions {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .skill-preview {
+      max-height: 200px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .save-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+    
+    .status {
+      text-align: center;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 12px;
+      display: none;
+    }
+    
+    .status.success {
+      background: rgba(76, 175, 80, 0.1);
+      color: #4caf50;
+      display: block;
+    }
+    
+    .status.error {
+      background: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <!-- AI配置 -->
+    <div class="settings-section">
+      <h3>🤖 AI配置</h3>
+      <div class="form-group">
+        <label>API服务提供商</label>
+        <select id="apiProvider">
+          <option value="openai">OpenAI</option>
+          <option value="claude">Claude (Anthropic)</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="custom">自定义</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>API端点</label>
+        <input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
+        <div class="hint">自定义API地址（OpenAI兼容格式）</div>
+      </div>
+      <div class="form-group">
+        <label>API密钥</label>
+        <input type="password" id="apiKey" placeholder="sk-...">
+      </div>
+      <div class="form-group">
+        <label>模型</label>
+        <input type="text" id="model" placeholder="gpt-3.5-turbo">
+      </div>
+    </div>
+    
+    <!-- 外观设置 -->
+    <div class="settings-section">
+      <h3>🎨 外观设置</h3>
+      <div class="form-group checkbox">
+        <input type="checkbox" id="alwaysOnTop" checked>
+        <label>始终置顶显示</label>
+      </div>
+      <div class="form-group checkbox">
+        <input type="checkbox" id="showBubble" checked>
+        <label>显示状态气泡</label>
+      </div>
+    </div>
+    
+    <!-- 称呼与性格 -->
+    <div class="settings-section">
+      <h3>🧠 性格设定</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>🤖 伙伴名字</label>
+          <input type="text" id="petName" placeholder="小伙伴">
+          <div class="hint">伙伴在聊天中会用这个名字自称</div>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>👤 你叫什么</label>
+          <input type="text" id="userName" placeholder="朋友">
+          <div class="hint">伙伴会这样称呼你</div>
+        </div>
+      </div>
+      
+      <!-- 性格来源：导入 Skill.md / 手动编写 -->
+      <div class="form-group">
+        <label>🎭 性格来源</label>
+        <select id="personaSource">
+          <option value="skill">导入 Skill.md</option>
+          <option value="custom">手动编写</option>
+        </select>
+      </div>
+
+      <!-- 导入 Skill.md -->
+      <div class="form-group hidden" id="skillGroup">
+        <label>📄 导入 Skill.md 文件</label>
+        <div class="skill-import-area">
+          <div class="skill-file-info" id="skillFileInfo">
+            <span class="skill-placeholder">尚未导入文件</span>
+          </div>
+          <div class="skill-actions">
+            <button class="action-btn" id="importSkillBtn">📂 选择 Skill.md</button>
+            <button class="action-btn" id="clearSkillBtn" style="display:none">✕ 清除</button>
+          </div>
+        </div>
+        <div class="hint">支持 .md / .txt 格式，内容将作为 System Prompt 的一部分。支持 {petName} 和 {userName} 占位符。文件内容会自动保存到配置中。</div>
+        <!-- Skill.md 内容预览 -->
+        <div id="skillPreviewWrap" class="hidden">
+          <label style="font-size:12px;color:#888;margin-top:8px;display:block">📄 文件内容预览</label>
+          <pre id="skillPreview" class="prompt-preview skill-preview"></pre>
+        </div>
+      </div>
+
+      <!-- 手动编写 -->
+      <div class="form-group hidden" id="customPromptGroup">
+        <label>✏️ 自定义性格描述</label>
+      <textarea id="customSystemPrompt" rows="6" placeholder="在这里自由定义伙伴的性格、说话方式、背景故事等...&#10;&#10;可用占位符：&#10;{petName} — 伙伴名字&#10;{userName} — 你的名字&#10;&#10;动作指令：&#10;在回复中用 [动作:xxx] 来触发动画"></textarea>
+      <div class="hint">详细的性格描述会让伙伴的回复更有个性</div>
+      </div>
+      
+      <div class="form-group">
+        <label>💡 预览当前 System Prompt</label>
+        <button class="preview-btn" id="previewPromptBtn">查看完整 Prompt</button>
+        <pre id="promptPreview" class="prompt-preview hidden"></pre>
+      </div>
+      
+      <div class="form-actions">
+        <button class="action-btn" id="exportPersonaBtn">📤 导出性格</button>
+        <button class="action-btn" id="importPersonaBtn">📥 导入性格(.json)</button>
+        <input type="file" id="importPersonaFile" accept=".json" style="display:none">
+      </div>
+    </div>
+    
+    <!-- 系统设置 -->
+    <div class="settings-section">
+      <h3>⚙️ 系统设置</h3>
+      <div class="form-group checkbox">
+        <input type="checkbox" id="autoStart" checked>
+        <label>开机自动启动</label>
+      </div>
+      <div class="form-group checkbox">
+        <input type="checkbox" id="autoWander" checked>
+        <label>允许自动漫游</label>
+      </div>
+    </div>
+    
+    <button class="save-btn" id="saveBtn">保存设置</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    // API端点预设
+    const endpoints = {
+      openai: 'https://api.openai.com/v1/chat/completions',
+      claude: 'https://api.anthropic.com/v1/messages',
+      deepseek: 'https://api.deepseek.com/v1/chat/completions',
+      custom: ''
+    };
+    
+    // 检查API是否可用
+    function checkAPI() {
+      if (!window.electronAPI) {
+        showStatus('error', 'API未正确加载，请重启应用');
+        return false;
+      }
+      return true;
+    }
+    
+    // 加载配置
+    async function loadSettings() {
+      if (!checkAPI()) return;
+      
+      try {
+        const config = await window.electronAPI.getAllConfig();
+        
+        document.getElementById('apiProvider').value = config.apiProvider || 'openai';
+        document.getElementById('apiEndpoint').value = config.apiEndpoint || '';
+        document.getElementById('apiKey').value = config.apiKey || '';
+        document.getElementById('model').value = config.model || 'gpt-3.5-turbo';
+        document.getElementById('alwaysOnTop').checked = config.alwaysOnTop !== false;
+        document.getElementById('showBubble').checked = config.showBubble !== false;
+        document.getElementById('autoStart').checked = config.autoStart !== false;
+        document.getElementById('autoWander').checked = config.autoWander !== false;
+        
+        // 称呼与性格
+        document.getElementById('petName').value = config.petName || '';
+        document.getElementById('userName').value = config.userName || '';
+        
+        // 性格来源（默认 skill）
+        const personaSource = config.personaSource || 'skill';
+        document.getElementById('personaSource').value = (personaSource === 'preset') ? 'skill' : personaSource;
+        
+        // 自定义
+        document.getElementById('customSystemPrompt').value = config.customSystemPrompt || '';
+        
+        // Skill.md
+        if (config.skillFileContent) {
+          currentSkillContent = config.skillFileContent;
+          currentSkillName = config.skillFileName || '已保存的 Skill';
+          updateSkillFileInfo();
+        }
+        
+        // 切换显隐
+        togglePersonaSource();
+      } catch (error) {
+        console.error('加载配置失败:', error);
+        showStatus('error', '加载配置失败: ' + error.message);
+      }
+    }
+    
+    // 当前导入的 Skill 状态
+    let currentSkillContent = '';
+    let currentSkillName = '';
+    
+    // 切换性格来源显隐
+    function togglePersonaSource() {
+      const source = document.getElementById('personaSource').value;
+      document.getElementById('skillGroup').classList.toggle('hidden', source !== 'skill');
+      document.getElementById('customPromptGroup').classList.toggle('hidden', source !== 'custom');
+    }
+    
+    // 更新 Skill 文件信息显示
+    function updateSkillFileInfo() {
+      const info = document.getElementById('skillFileInfo');
+      const clearBtn = document.getElementById('clearSkillBtn');
+      
+      if (currentSkillContent) {
+        const size = (new TextEncoder().encode(currentSkillContent).length / 1024).toFixed(1);
+        info.innerHTML = '<div class="skill-loaded"><span class="skill-name">' + escapeHtml(currentSkillName) + '</span><span class="skill-size">(' + size + ' KB)</span></div>';
+        clearBtn.style.display = 'inline-block';
+        
+        // 显示预览
+        const preview = document.getElementById('skillPreview');
+        const previewWrap = document.getElementById('skillPreviewWrap');
+        preview.textContent = currentSkillContent;
+        previewWrap.classList.remove('hidden');
+      } else {
+        info.innerHTML = '<span class="skill-placeholder">尚未导入文件</span>';
+        clearBtn.style.display = 'none';
+        document.getElementById('skillPreviewWrap').classList.add('hidden');
+      }
+    }
+    
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    
+    // 导入 Skill.md
+    async function importSkillFile() {
+      if (!checkAPI()) return;
+      
+      try {
+        const result = await window.electronAPI.openFileDialog({
+          title: '选择 Skill.md 文件',
+          filters: [
+            { name: 'Markdown 文件', extensions: ['md'] },
+            { name: '文本文件', extensions: ['txt'] },
+            { name: '所有文件', extensions: ['*'] }
+          ]
+        });
+        
+        if (result.canceled || !result.filePaths || result.filePaths.length === 0) return;
+        
+        const filePath = result.filePaths[0];
+        const readResult = await window.electronAPI.readFile(filePath);
+        
+        if (!readResult.success) {
+          showStatus('error', '读取文件失败: ' + readResult.error);
+          return;
+        }
+        
+        currentSkillContent = readResult.content;
+        currentSkillName = filePath.split(/[\\/]/).pop(); // 取文件名
+        
+        updateSkillFileInfo();
+        showStatus('success', '已导入: ' + currentSkillName);
+      } catch (err) {
+        showStatus('error', '导入失败: ' + err.message);
+      }
+    }
+    
+    // 清除 Skill
+    function clearSkill() {
+      currentSkillContent = '';
+      currentSkillName = '';
+      updateSkillFileInfo();
+      showStatus('success', '已清除 Skill 文件');
+    }
+    
+    // 获取当前完整的 system prompt（预览用）
+    function getPreviewPrompt() {
+      const petName = document.getElementById('petName').value || '小伙伴';
+      const userName = document.getElementById('userName').value || '朋友';
+      const source = document.getElementById('personaSource').value;
+      
+      let prompt;
+      
+      if (source === 'skill') {
+        if (!currentSkillContent) return '(未导入 Skill.md 文件)';
+        prompt = currentSkillContent + '\n\n---\n\n' + buildActionHint(petName);
+      } else {
+        const custom = document.getElementById('customSystemPrompt').value;
+        prompt = custom || '(未编写自定义性格描述)';
+        prompt += '\n\n---\n\n' + buildActionHint(petName);
+      }
+      
+      return prompt.replace(/\{petName\}/g, petName).replace(/\{userName\}/g, userName);
+    }
+    
+    // 构建动作指令附加文本
+    function buildActionHint(petName) {
+      return '## 动作指令\n' + petName + '可以在回复末尾用 [动作:xxx] 来做动作。可用动作：\n' +
+        '- 程序化动作：[动作:蹦跳] [动作:旋转] [动作:摇摆] [动作:跳舞] [动作:摇头] [动作:点头]\n' +
+        '- 如果有内置动画，用 [动作:动画名] 来播放\n\n' +
+        '注意：\n' +
+        '1. [动作:xxx] 标记会被系统解析执行，不会显示给用户\n' +
+        '2. 不是每句话都要加动作，自然使用即可\n' +
+        '3. 动作要和情绪匹配';
+    }
+    
+    // 保存配置
+    async function saveSettings() {
+      if (!checkAPI()) return;
+      
+      showStatus('', '保存中...');
+      
+      const source = document.getElementById('personaSource').value;
+      
+      const config = {
+        apiProvider: document.getElementById('apiProvider').value,
+        apiEndpoint: document.getElementById('apiEndpoint').value,
+        apiKey: document.getElementById('apiKey').value,
+        model: document.getElementById('model').value,
+        alwaysOnTop: document.getElementById('alwaysOnTop').checked,
+        showBubble: document.getElementById('showBubble').checked,
+        autoStart: document.getElementById('autoStart').checked,
+        autoWander: document.getElementById('autoWander').checked,
+        // 称呼
+        petName: document.getElementById('petName').value,
+        userName: document.getElementById('userName').value,
+        // 性格来源
+        personaSource: source,
+        // 清除旧预设模板配置
+        personaPreset: '',
+        // 自定义
+        customSystemPrompt: source === 'custom' ? document.getElementById('customSystemPrompt').value : '',
+        // Skill.md 内容
+        skillFileContent: source === 'skill' ? currentSkillContent : '',
+        skillFileName: source === 'skill' ? currentSkillName : ''
+      };
+      
+      try {
+        for (const [key, value] of Object.entries(config)) {
+          await window.electronAPI.setConfig(key, value);
+        }
+        
+        showStatus('success', '设置已保存！');
+      } catch (error) {
+        console.error('保存失败:', error);
+        showStatus('error', '保存失败：' + error.message);
+      }
+    }
+    
+    // 导出性格配置
+    function exportPersona() {
+      const source = document.getElementById('personaSource').value;
+      const persona = {
+        version: 2,
+        personaSource: source,
+        petName: document.getElementById('petName').value,
+        userName: document.getElementById('userName').value,
+        customSystemPrompt: document.getElementById('customSystemPrompt').value,
+        skillFileContent: currentSkillContent || '',
+        skillFileName: currentSkillName || '',
+        exportedAt: new Date().toISOString()
+      };
+      
+      const json = JSON.stringify(persona, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (persona.petName || 'companion') + '-persona.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showStatus('success', '性格配置已导出！');
+    }
+    
+    // 导入性格配置
+    function importPersona() {
+      document.getElementById('importPersonaFile').click();
+    }
+    
+    function handlePersonaImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const persona = JSON.parse(e.target.result);
+          
+          if (persona.petName !== undefined) document.getElementById('petName').value = persona.petName;
+          if (persona.userName !== undefined) document.getElementById('userName').value = persona.userName;
+          
+          // v2: 有 personaSource（忽略 preset 类型，映射到 skill）
+          if (persona.personaSource) {
+            const source = persona.personaSource === 'preset' ? 'skill' : persona.personaSource;
+            document.getElementById('personaSource').value = source;
+          } else {
+            // v1 兼容：如果有 customSystemPrompt 且非空，视为 custom；否则视为 skill
+            document.getElementById('personaSource').value =
+              persona.customSystemPrompt ? 'custom' : 'skill';
+          }
+          
+          if (persona.customSystemPrompt) {
+            document.getElementById('customSystemPrompt').value = persona.customSystemPrompt;
+          }
+          
+          // skill 内容
+          if (persona.skillFileContent) {
+            currentSkillContent = persona.skillFileContent;
+            currentSkillName = persona.skillFileName || '导入的 Skill';
+            updateSkillFileInfo();
+          }
+          
+          togglePersonaSource();
+          showStatus('success', '性格配置已导入：' + (persona.petName || ''));
+        } catch (err) {
+          showStatus('error', '导入失败：文件格式不正确');
+        }
+      };
+      reader.readAsText(file);
+      // 重置 file input
+      event.target.value = '';
+    }
+    
+    function showStatus(type, message) {
+      const status = document.getElementById('status');
+      status.className = 'status ' + type;
+      status.textContent = message;
+      status.style.display = 'block';
+      
+      if (type !== '') {
+        setTimeout(() => {
+          status.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // API提供商切换
+    document.getElementById('apiProvider').addEventListener('change', (e) => {
+      const endpoint = endpoints[e.target.value];
+      if (endpoint) {
+        document.getElementById('apiEndpoint').value = endpoint;
+      }
+    });
+    
+    // 性格来源切换
+    document.getElementById('personaSource').addEventListener('change', togglePersonaSource);
+    
+    // 预览 Prompt
+    document.getElementById('previewPromptBtn').addEventListener('click', () => {
+      const preview = document.getElementById('promptPreview');
+      if (preview.classList.contains('hidden')) {
+        preview.textContent = getPreviewPrompt();
+        preview.classList.remove('hidden');
+        document.getElementById('previewPromptBtn').textContent = '收起 Prompt';
+      } else {
+        preview.classList.add('hidden');
+        document.getElementById('previewPromptBtn').textContent = '查看 Prompt';
+      }
+    });
+    
+    // 导入/导出
+    document.getElementById('exportPersonaBtn').addEventListener('click', exportPersona);
+    document.getElementById('importPersonaBtn').addEventListener('click', importPersona);
+    document.getElementById('importPersonaFile').addEventListener('change', handlePersonaImport);
+    
+    // Skill.md 导入/清除
+    document.getElementById('importSkillBtn').addEventListener('click', importSkillFile);
+    document.getElementById('clearSkillBtn').addEventListener('click', clearSkill);
+    
+    document.getElementById('saveBtn').addEventListener('click', saveSettings);
+    
+    // 页面加载后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+    });
+  </script>
+</body>
+</html>

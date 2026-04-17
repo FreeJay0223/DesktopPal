@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>形象管理</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 100%;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+      font-size: 16px;
+    }
+    
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .model-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .model-card:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+    }
+    
+    .model-card.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+    
+    .model-card .preview {
+      width: 100%;
+      height: 120px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    
+    .model-card .preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .model-card .name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .model-card .info {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .model-card .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ff5252;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .model-card:hover .delete-btn {
+      opacity: 1;
+    }
+    
+    .add-model-card {
+      border: 2px dashed #ccc;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .add-model-card:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+    }
+    
+    .add-model-card .icon {
+      font-size: 48px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+    
+    .add-model-card:hover .icon {
+      color: #667eea;
+    }
+    
+    .upload-section {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9ff;
+      border-radius: 12px;
+    }
+    
+    .upload-section.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .form-group .hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: scale(1.02);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #666;
+    }
+    
+    .status {
+      text-align: center;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .status.success {
+      background: #e8f5e9;
+      color: #4caf50;
+      display: block;
+    }
+    
+    .status.error {
+      background: #ffebee;
+      color: #f44336;
+      display: block;
+    }
+    
+    .status.info {
+      background: #e3f2fd;
+      color: #2196f3;
+      display: block;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .scale-slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+    
+    .scale-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    
+    .scale-input {
+      width: 80px;
+      padding: 6px 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .scale-input:focus {
+      border-color: #667eea;
+    }
+    
+    .scale-value {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .anim-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .anim-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #f0f0ff;
+      border: 1px solid #d0d0f0;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #444;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    
+    .anim-chip:hover {
+      background: #e0e0ff;
+      border-color: #667eea;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+    }
+    
+    .anim-chip:active {
+      transform: translateY(0);
+    }
+    
+    .anim-chip.playing {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+    
+    .anim-chip .anim-duration {
+      font-size: 11px;
+      color: #999;
+      background: rgba(0,0,0,0.06);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+    
+    .anim-chip.playing .anim-duration {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    
+    .anim-chip .anim-type-badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 6px;
+      background: rgba(102, 126, 234, 0.15);
+      color: #667eea;
+    }
+    
+    .anim-chip.playing .anim-type-badge {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    
+    .model-info-bar {
+      display: flex;
+      gap: 15px;
+      padding: 10px 14px;
+      background: #f8f8ff;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .model-info-bar span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 当前形象 -->
+    <div class="section">
+      <h3>🎭 我的形象</h3>
+      <div class="model-grid" id="modelGrid">
+        <!-- 模型卡片将通过JS动态生成 -->
+      </div>
+    </div>
+    
+    <!-- 上传新形象 -->
+    <div class="section">
+      <h3>📤 添加新形象</h3>
+      <div id="uploadSection" class="upload-section">
+        <div class="form-group">
+          <label>形象名称</label>
+          <input type="text" id="modelName" placeholder="给形象起个名字">
+        </div>
+        <div class="form-group">
+          <label>形象类型</label>
+          <select id="modelType" onchange="updateFileAccept()">
+            <option value="GLTF">3D模型 (GLTF/GLB)</option>
+            <option value="Image">静态图片（自动动画）</option>
+            <option value="Live2D">Live2D模型</option>
+          </select>
+        </div>
+        <div class="form-group" id="gltfFileGroup">
+          <label>3D模型文件 (.gltf/.glb)</label>
+          <input type="file" id="gltfFile" accept=".gltf,.glb">
+          <div class="hint">支持GLTF/GLB格式，可包含内置动画（如跳舞、走路等）</div>
+        </div>
+        <div class="form-group" id="imageFileGroup" style="display:none">
+          <label>图片文件</label>
+          <input type="file" id="imageFile" accept="image/*">
+          <div class="hint">支持 PNG、JPG、GIF 等格式，会自动添加呼吸、跳跃、摇摆等动画效果</div>
+        </div>
+        <div class="form-group" id="modelFileGroup" style="display:none">
+          <label>Live2D模型文件 (.model3.json)</label>
+          <input type="file" id="modelFile" accept=".json">
+          <div class="hint">选择 .model3.json 文件，模型资源需在同一目录下</div>
+        </div>
+        <div class="form-group">
+          <label>预览图（可选）</label>
+          <input type="file" id="previewImage" accept="image/*">
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="cancelUpload()">取消</button>
+          <button class="btn btn-primary" onclick="addModel()">添加形象</button>
+        </div>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+    
+    <!-- 当前形象设置 -->
+    <div class="section" id="currentModelSettings" style="display:none">
+      <h3>⚙️ 当前形象设置</h3>
+      <div class="form-group">
+        <label>模型大小</label>
+        <div class="scale-control">
+          <input type="range" class="scale-slider" id="modelDisplaySize" min="0.1" max="0.5" step="0.02" value="0.2">
+          <div class="scale-input-row">
+            <input type="number" class="scale-input" id="modelDisplaySizeInput" min="0.1" max="1" step="0.02" value="0.2">
+            <div class="scale-value" id="modelDisplaySizeValue">20%</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>窗口大小</label>
+        <div class="scale-control">
+          <input type="range" class="scale-slider" id="windowSize" min="200" max="800" step="10" value="350">
+          <div class="scale-input-row">
+            <input type="number" class="scale-input" id="windowSizeInput" min="200" max="800" step="10" value="350">
+            <div class="scale-value" id="windowSizeValue">350px</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>可用动作</label>
+        <div id="motionList" style="color:#666;font-size:14px;">加载中...</div>
+      </div>
+      <div class="form-group">
+        <label>可用表情</label>
+        <div id="expressionList" style="color:#666;font-size:14px;">暂无表情信息</div>
+      </div>
+      <div class="form-group" id="builtinAnimSection" style="display:none">
+        <label>🎬 内置动画 <span style="font-size:12px;color:#999;font-weight:normal">（点击试播）</span></label>
+        <div id="builtinAnimList" class="anim-grid"></div>
+      </div>
+      <div class="form-group" id="proceduralAnimSection" style="display:none">
+        <label>🎮 程序化动画 <span style="font-size:12px;color:#999;font-weight:normal">（点击试播）</span></label>
+        <div id="proceduralAnimList" class="anim-grid"></div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+    </div>
+  </div>
+
+  <script>
+    // API端点预设
+    let models = [];
+    let currentModelId = null;
+    
+    // 加载模型列表
+    async function loadModels() {
+      try {
+        const config = await window.electronAPI.getConfig('live2dModels');
+        models = config || [];
+        
+        const currentId = await window.electronAPI.getConfig('currentLive2DModel');
+        currentModelId = currentId;
+        
+        renderModelGrid();
+      } catch (e) {
+        console.error('Failed to load models:', e);
+        models = [];
+        renderModelGrid();
+      }
+    }
+    
+    // 渲染模型网格
+    function renderModelGrid() {
+      const grid = document.getElementById('modelGrid');
+      
+      let html = models.map(model => `
+        <div class="model-card ${model.id === currentModelId ? 'active' : ''}" 
+             data-id="${model.id}" onclick="selectModel('${model.id}')">
+          <button class="delete-btn" onclick="event.stopPropagation(); deleteModel('${model.id}')">×</button>
+          <div class="preview">
+            ${model.preview ? `<img src="${model.preview}" alt="${model.name}">` : '🎭'}
+          </div>
+          <div class="name">${model.name}</div>
+          <div class="info">${model.type || 'Live2D'}</div>
+        </div>
+      `).join('');
+      
+      // 添加"添加新形象"卡片
+      html += `
+        <div class="model-card add-model-card" onclick="showUploadSection()">
+          <div class="icon">+</div>
+          <div>添加新形象</div>
+        </div>
+      `;
+      
+      grid.innerHTML = html;
+    }
+    
+    // 显示上传区域
+    function showUploadSection() {
+      document.getElementById('uploadSection').classList.add('active');
+      document.getElementById('modelName').value = '';
+      document.getElementById('modelFile').value = '';
+      document.getElementById('previewImage').value = '';
+    }
+    
+    // 取消上传
+    function cancelUpload() {
+      document.getElementById('uploadSection').classList.remove('active');
+    }
+    
+    // 添加模型
+    async function addModel() {
+      const name = document.getElementById('modelName').value.trim();
+      const modelType = document.getElementById('modelType').value;
+      const gltfFile = document.getElementById('gltfFile').files[0];
+      const imageFile = document.getElementById('imageFile').files[0];
+      const modelFile = document.getElementById('modelFile').files[0];
+      const previewFile = document.getElementById('previewImage').files[0];
+      
+      if (!name) {
+        showStatus('error', '请输入形象名称');
+        return;
+      }
+      
+      // 根据类型检查文件
+      let filePath = null;
+      if (modelType === 'GLTF') {
+        if (!gltfFile) {
+          showStatus('error', '请选择GLTF/GLB模型文件');
+          return;
+        }
+        filePath = gltfFile.path;
+      } else if (modelType === 'Image') {
+        if (!imageFile) {
+          showStatus('error', '请选择图片文件');
+          return;
+        }
+        filePath = imageFile.path;
+      } else if (modelType === 'Live2D') {
+        if (!modelFile) {
+          showStatus('error', '请选择模型文件');
+          return;
+        }
+        filePath = modelFile.path;
+      }
+      
+      showStatus('info', '正在添加...');
+      
+      try {
+        // 读取预览图
+        let preview = null;
+        if (previewFile) {
+          preview = await readFileAsDataURL(previewFile);
+        } else if (modelType === 'Image' && imageFile) {
+          // 如果是图片类型且没有单独预览图，使用图片本身
+          preview = await readFileAsDataURL(imageFile);
+        }
+        
+        // 创建模型记录
+        const model = {
+          id: 'model_' + Date.now(),
+          name: name,
+          path: filePath,
+          preview: preview,
+          type: modelType,
+          addedAt: new Date().toISOString()
+        };
+        
+        models.push(model);
+        await window.electronAPI.setConfig('live2dModels', models);
+        
+        showStatus('success', '形象添加成功！');
+        cancelUpload();
+        renderModelGrid();
+        
+        // 自动选择新添加的模型
+        selectModel(model.id);
+      } catch (e) {
+        showStatus('error', '添加失败: ' + e.message);
+      }
+    }
+    
+    // 更新文件选择器显示
+    function updateFileAccept() {
+      const modelType = document.getElementById('modelType').value;
+      const gltfGroup = document.getElementById('gltfFileGroup');
+      const imageGroup = document.getElementById('imageFileGroup');
+      const modelGroup = document.getElementById('modelFileGroup');
+      
+      // 隐藏所有
+      gltfGroup.style.display = 'none';
+      imageGroup.style.display = 'none';
+      modelGroup.style.display = 'none';
+      
+      // 显示对应的
+      if (modelType === 'GLTF') {
+        gltfGroup.style.display = 'block';
+      } else if (modelType === 'Image') {
+        imageGroup.style.display = 'block';
+      } else if (modelType === 'Live2D') {
+        modelGroup.style.display = 'block';
+      }
+    }
+    
+    // 选择模型
+    async function selectModel(id) {
+      currentModelId = id;
+      await window.electronAPI.setConfig('currentLive2DModel', id);
+      
+      // 更新UI
+      document.querySelectorAll('.model-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.id === id);
+      });
+      
+      // 显示设置
+      const model = models.find(m => m.id === id);
+      if (model) {
+        document.getElementById('currentModelSettings').style.display = 'block';
+      }
+      
+      // 加载动画信息
+      loadAnimInfo();
+      
+      showStatus('success', '已切换到: ' + (model ? model.name : ''));
+      
+      // 通知主窗口重新加载模型
+      await window.electronAPI.setConfig('reloadModel', Date.now());
+    }
+    
+    // 删除模型
+    async function deleteModel(id) {
+      if (!confirm('确定要删除这个形象吗？')) return;
+      
+      models = models.filter(m => m.id !== id);
+      await window.electronAPI.setConfig('live2dModels', models);
+      
+      if (currentModelId === id) {
+        currentModelId = models.length > 0 ? models[0].id : null;
+        await window.electronAPI.setConfig('currentLive2DModel', currentModelId);
+      }
+      
+      renderModelGrid();
+      showStatus('success', '形象已删除');
+    }
+    
+    // 更新模型大小值显示（同步滑块和输入框）
+    function updateModelDisplaySizeValue() {
+      const slider = document.getElementById('modelDisplaySize');
+      const input = document.getElementById('modelDisplaySizeInput');
+      const display = document.getElementById('modelDisplaySizeValue');
+      const size = parseFloat(slider.value) || 0.2;
+      input.value = size.toFixed(2);
+      display.textContent = Math.round(size * 100) + '%';
+    }
+    
+    // 从输入框同步到滑块
+    function updateModelDisplaySizeFromInput() {
+      const slider = document.getElementById('modelDisplaySize');
+      const input = document.getElementById('modelDisplaySizeInput');
+      let val = parseFloat(input.value);
+      if (isNaN(val) || val < 0.1) val = 0.1;
+      if (val > 1) val = 1;
+      slider.value = Math.min(val, parseFloat(slider.max));
+      updateModelDisplaySizeValue();
+    }
+    
+    // 更新窗口大小值显示（同步滑块和输入框）
+    function updateWindowSizeValue() {
+      const slider = document.getElementById('windowSize');
+      const input = document.getElementById('windowSizeInput');
+      const display = document.getElementById('windowSizeValue');
+      const size = parseInt(slider.value) || 250;
+      input.value = size;
+      display.textContent = size + 'px';
+    }
+    
+    // 从输入框同步到滑块
+    function updateWindowSizeFromInput() {
+      const slider = document.getElementById('windowSize');
+      const input = document.getElementById('windowSizeInput');
+      let val = parseInt(input.value);
+      if (isNaN(val) || val < 200) val = 200;
+      if (val > 800) val = 800;
+      slider.value = val;
+      updateWindowSizeValue();
+    }
+    
+    // 保存设置
+    async function saveSettings() {
+      if (currentModelId) {
+        const modelDisplaySize = parseFloat(document.getElementById('modelDisplaySizeInput').value) || 0.2;
+        const windowSize = parseInt(document.getElementById('windowSizeInput').value) || 350;
+        
+        await window.electronAPI.setConfig('modelDisplaySize', modelDisplaySize);
+        await window.electronAPI.setConfig('windowSize', windowSize);
+        
+        // 立即应用窗口大小
+        await window.electronAPI.setWindowSize(windowSize);
+        
+        // 通知主窗口重新加载模型
+        await window.electronAPI.setConfig('reloadModel', Date.now());
+      }
+      showStatus('success', '设置已保存！');
+    }
+    
+    // 读取文件为DataURL
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // 显示状态
+    function showStatus(type, message) {
+      const status = document.getElementById('status');
+      status.className = 'status ' + type;
+      status.textContent = message;
+      
+      if (type !== 'info') {
+        setTimeout(() => {
+          status.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    // 模型大小滑块事件
+    document.getElementById('modelDisplaySize').addEventListener('input', updateModelDisplaySizeValue);
+    // 模型大小输入框事件
+    document.getElementById('modelDisplaySizeInput').addEventListener('input', updateModelDisplaySizeFromInput);
+    document.getElementById('modelDisplaySizeInput').addEventListener('change', updateModelDisplaySizeFromInput);
+    
+    // 窗口大小滑块事件
+    document.getElementById('windowSize').addEventListener('input', updateWindowSizeValue);
+    // 窗口大小输入框事件
+    document.getElementById('windowSizeInput').addEventListener('input', updateWindowSizeFromInput);
+    document.getElementById('windowSizeInput').addEventListener('change', updateWindowSizeFromInput);
+    
+    // 加载模型列表
+    loadModels();
+    
+    // 加载窗口大小配置
+    async function loadWindowSettings() {
+      const savedDisplaySize = await window.electronAPI.getConfig('modelDisplaySize') || 0.2;
+      const savedWindowSize = await window.electronAPI.getConfig('windowSize') || 350;
+      
+      document.getElementById('modelDisplaySize').value = savedDisplaySize;
+      document.getElementById('modelDisplaySizeInput').value = savedDisplaySize.toFixed(2);
+      updateModelDisplaySizeValue();
+      
+      document.getElementById('windowSize').value = savedWindowSize;
+      document.getElementById('windowSizeInput').value = savedWindowSize;
+      updateWindowSizeValue();
+    }
+    loadWindowSettings();
+    
+    // 定期刷新动画信息（模型可能在后台切换/重载）
+    setInterval(loadAnimInfo, 3000);
+    
+    /**
+     * 加载当前模型的动画信息并渲染列表
+     */
+    async function loadAnimInfo() {
+      const animInfo = await window.electronAPI.getConfig('modelAnimInfo');
+      if (!animInfo) {
+        // 动画信息尚未生成（模型可能还没加载完成或非 GLTF 模型）
+        document.getElementById('builtinAnimSection').style.display = 'none';
+        document.getElementById('proceduralAnimSection').style.display = 'none';
+        
+        // 更新可用动作列表
+        document.getElementById('motionList').textContent = '加载中...（请先确保模型已加载）';
+        return;
+      }
+      
+      // 更新可用动作列表
+      const allActions = animInfo.actions || [];
+      if (allActions.length > 0) {
+        const actionLabels = allActions.map(a => a.name + ' [' + a.type + ']').join(', ');
+        document.getElementById('motionList').textContent = actionLabels;
+      } else {
+        document.getElementById('motionList').textContent = '暂无可用动作';
+      }
+      
+      // 模型信息栏
+      const model = models.find(m => m.id === currentModelId);
+      if (model && model.type === 'GLTF') {
+        const infoBar = document.querySelector('.model-info-bar');
+        if (!infoBar) {
+          const bar = document.createElement('div');
+          bar.className = 'model-info-bar';
+          bar.id = 'modelInfoBar';
+          document.getElementById('currentModelSettings').prepend(bar);
+        }
+        const bar = document.getElementById('modelInfoBar');
+        if (bar) {
+          bar.innerHTML = 
+            '<span>🦴 ' + (animInfo.hasSkeleton ? '有骨架 (' + (animInfo.boneCount || 0) + ' 骨骼)' : '无骨架') + '</span>' +
+            '<span>🎬 内置动画: ' + (animInfo.animations ? animInfo.animations.length : 0) + ' 个</span>' +
+            '<span>🎮 可用动作: ' + allActions.length + ' 个</span>';
+        }
+      }
+      
+      // 渲染内置动画列表
+      const builtinSection = document.getElementById('builtinAnimSection');
+      const builtinList = document.getElementById('builtinAnimList');
+      const builtinAnims = (animInfo.animations || []).filter(a => true); // 所有 gltf.animations 都是内置动画
+      
+      if (builtinAnims.length > 0) {
+        builtinSection.style.display = 'block';
+        builtinList.innerHTML = builtinAnims.map((anim, i) => {
+          const typeLabels = (anim.trackTypes || []).join(' ');
+          return '<div class="anim-chip" onclick="playAnim(' + i + ', \'builtin\', \'' + escapeHtml(anim.name) + '\')" id="anim-builtin-' + i + '">' +
+            '<span>' + escapeHtml(anim.name) + '</span>' +
+            '<span class="anim-duration">' + anim.duration.toFixed(1) + 's</span>' +
+            '<span class="anim-type-badge">' + escapeHtml(typeLabels) + '</span>' +
+            '</div>';
+        }).join('');
+      } else {
+        builtinSection.style.display = 'none';
+      }
+      
+      // 渲染程序化动画列表
+      const procSection = document.getElementById('proceduralAnimSection');
+      const procList = document.getElementById('proceduralAnimList');
+      const procAnims = allActions.filter(a => a.type === 'procedural');
+      
+      if (procAnims.length > 0) {
+        procSection.style.display = 'block';
+        procList.innerHTML = procAnims.map((action) => {
+          return '<div class="anim-chip" onclick="playAnim(null, \'procedural\', \'' + escapeHtml(action.name) + '\')">' +
+            '<span>' + escapeHtml(action.name) + '</span>' +
+            '<span class="anim-type-badge">程序化</span>' +
+            '</div>';
+        }).join('');
+      } else {
+        procSection.style.display = 'none';
+      }
+    }
+    
+    /**
+     * 播放指定动画
+     */
+    async function playAnim(index, type, name) {
+      // 视觉反馈：高亮当前播放的
+      document.querySelectorAll('.anim-chip').forEach(chip => chip.classList.remove('playing'));
+      
+      if (type === 'builtin') {
+        const chip = document.getElementById('anim-builtin-' + index);
+        if (chip) chip.classList.add('playing');
+      }
+      
+      // 发送播放指令到主窗口
+      await window.electronAPI.setConfig('playAnimCommand', { type: type, index: index, name: name });
+      
+      // 1.5 秒后取消高亮
+      setTimeout(() => {
+        document.querySelectorAll('.anim-chip').forEach(chip => chip.classList.remove('playing'));
+      }, 1500);
+    }
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>

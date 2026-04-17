@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>与伙伴聊天</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    /* 顶部栏 */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      -webkit-app-region: drag;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .header-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .header-btn:hover {
+      background: rgba(255,255,255,0.35);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 聊天区域 */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-name {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 3px;
+    }
+
+    .message.ai .message-name {
+      color: #999;
+    }
+
+    .message-content {
+      word-break: break-word;
+    }
+
+    /* 思考中动画 */
+    .thinking {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px 14px;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .thinking-dot {
+      width: 8px;
+      height: 8px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: thinkingBounce 1.2s infinite ease-in-out;
+    }
+
+    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes thinkingBounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 输入区域 */
+    .input-area {
+      padding: 12px 20px 16px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      gap: 10px;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 24px;
+      outline: none;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .input-area button {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .input-area button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .input-area button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 14px;
+      gap: 8px;
+    }
+
+    .empty-state .emoji {
+      font-size: 48px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">
+      <span id="header-emoji">💬</span>
+      <span id="header-name">与伙伴聊天</span>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="btn-clear" title="清空聊天记录">🗑️</button>
+      <button class="header-btn" id="btn-minimize" title="最小化">—</button>
+      <button class="header-btn" id="btn-close" title="关闭">×</button>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chat-area">
+    <div class="empty-state" id="empty-state">
+      <div class="emoji">👋</div>
+      <div>开始和你的伙伴聊天吧~</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="chat-input" placeholder="说点什么..." />
+    <button id="chat-send">发送</button>
+  </div>
+
+  <script>
+    const chatArea = document.getElementById('chat-area');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send');
+    const emptyState = document.getElementById('empty-state');
+    const headerEmoji = document.getElementById('header-emoji');
+    const headerName = document.getElementById('header-name');
+    const btnClose = document.getElementById('btn-close');
+    const btnMinimize = document.getElementById('btn-minimize');
+    const btnClear = document.getElementById('btn-clear');
+
+    let petName = '小伙伴';
+    let userName = '朋友';
+    let chatHistory = [];
+    let isSending = false;
+
+    // 加载配置
+    async function init() {
+      try {
+        const config = await window.electronAPI.getAllConfig();
+        petName = config.petName || '小伙伴';
+        userName = config.userName || '朋友';
+        chatHistory = config.chatHistory || [];
+
+        headerName.textContent = '和 ' + petName + ' 聊天';
+        chatInput.placeholder = '对 ' + petName + ' 说点什么...';
+
+        // 渲染历史消息（同时清理可能残留的动作标记）
+        if (chatHistory.length > 0) {
+          emptyState.style.display = 'none';
+          chatHistory.slice(-30).forEach(msg => {
+            const cleaned = msg.content.replace(/\[[动作action][：:]\s*[^\]]+\]/gi, '').trim();
+            addMessage(msg.role, cleaned, false);
+          });
+        }
+      } catch (e) {
+        console.error('加载配置失败:', e);
+      }
+    }
+
+    // 添加消息到聊天区
+    function addMessage(role, text, animate = true) {
+      if (emptyState.style.display !== 'none') {
+        emptyState.style.display = 'none';
+      }
+
+      const msg = document.createElement('div');
+      msg.className = 'message ' + role;
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'message-name';
+      nameEl.textContent = role === 'user' ? userName : petName;
+      msg.appendChild(nameEl);
+
+      const contentEl = document.createElement('div');
+      contentEl.className = 'message-content';
+      contentEl.textContent = text;
+      msg.appendChild(contentEl);
+
+      if (animate) {
+        msg.style.opacity = '0';
+        msg.style.transform = 'translateY(10px)';
+        chatArea.appendChild(msg);
+        requestAnimationFrame(() => {
+          msg.style.transition = 'opacity 0.3s, transform 0.3s';
+          msg.style.opacity = '1';
+          msg.style.transform = 'translateY(0)';
+        });
+      } else {
+        chatArea.appendChild(msg);
+      }
+
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // 显示思考中
+    function showThinking() {
+      const div = document.createElement('div');
+      div.className = 'thinking';
+      div.id = 'thinking-indicator';
+      div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
+      chatArea.appendChild(div);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function hideThinking() {
+      const el = document.getElementById('thinking-indicator');
+      if (el) el.remove();
+    }
+
+    // 发送消息
+    async function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text || isSending) {
+        console.log('[ChatWindow] 忽略空消息或重复发送');
+        return;
+      }
+
+      console.log('[ChatWindow] =========================================');
+      console.log('[ChatWindow] 用户发送消息:', text);
+
+      isSending = true;
+      sendBtn.disabled = true;
+      chatInput.value = '';
+
+      // 保存并显示用户消息
+      chatHistory.push({ role: 'user', content: text });
+      if (chatHistory.length > 100) chatHistory = chatHistory.slice(-100);
+      await window.electronAPI.setConfig('chatHistory', chatHistory);
+      console.log('[ChatWindow] 用户消息已保存, 总消息数:', chatHistory.length);
+      addMessage('user', text);
+
+      // 显示思考中
+      console.log('[ChatWindow] 显示思考中提示');
+      showThinking();
+
+      try {
+        // 通过 IPC 调用 AI（主进程或渲染进程都行，这里直接在窗口内调用）
+        console.log('[ChatWindow] 获取 AI 配置...');
+        const config = await window.electronAPI.getAllConfig();
+        console.log('[ChatWindow] 调用 AI API...');
+        const response = await callAI(text, config);
+        hideThinking();
+        console.log('[ChatWindow] ✓ AI 响应成功');
+
+        // 解析动作标记
+        const { text: cleanText, action } = parseActionFromResponse(response);
+        console.log('[ChatWindow] 解析结果 - 纯文本长度:', cleanText.length, ', 动作:', action);
+
+        addMessage('ai', cleanText);
+
+        // 保存 AI 回复（去掉动作标记，只保存纯文本）
+        chatHistory.push({ role: 'assistant', content: cleanText });
+        if (chatHistory.length > 100) chatHistory = chatHistory.slice(-100);
+        await window.electronAPI.setConfig('chatHistory', chatHistory);
+
+        // 同步到主窗口头顶气泡
+        try {
+          await window.electronAPI.showChatBubble(cleanText);
+          console.log('[ChatWindow] ✓ 气泡同步成功');
+        } catch (e) {
+          console.warn('[ChatWindow] ✗ 气泡同步失败:', e);
+        }
+
+        // 通知主窗口播放动作
+        if (action) {
+          try {
+            await window.electronAPI.triggerPetAction(action);
+            console.log('[ChatWindow] ✓ 动作触发成功:', action);
+          } catch (e) {
+            console.warn('[ChatWindow] ✗ 动作触发失败:', e);
+          }
+        }
+        console.log('[ChatWindow] ✓ 消息处理完成');
+      } catch (error) {
+        hideThinking();
+        console.error('[ChatWindow] ✗ 消息处理失败:', error);
+        addMessage('ai', '抱歉，我遇到了一些问题。请检查API配置。');
+      }
+
+      isSending = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+      console.log('[ChatWindow] =========================================');
+    }
+
+    // 调用 AI 接口
+    async function callAI(text, config) {
+      // 每次调用时重新获取最新 config，确保包含最新的动作提示词
+      const latestConfig = await window.electronAPI.getAllConfig();
+      const cfg = Object.assign({}, config, latestConfig);
+
+      if (!cfg.apiKey || !cfg.apiEndpoint) {
+        return '请先在设置中配置API信息哦~ 点击右键菜单的设置进行配置。';
+      }
+
+      const systemPrompt = buildSystemPrompt(cfg);
+      const messages = [{ role: 'system', content: systemPrompt }];
+
+      // 最近20条历史
+      chatHistory.slice(-20).forEach(msg => {
+        messages.push({ role: msg.role, content: msg.content });
+      });
+      messages.push({ role: 'user', content: text });
+
+      const res = await fetch(cfg.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + cfg.apiKey
+        },
+        body: JSON.stringify({
+          model: cfg.model || 'gpt-3.5-turbo',
+          messages: messages
+        })
+      });
+
+      const data = await res.json();
+      if (!data.choices || !data.choices[0]) throw new Error('API 返回格式异常');
+      return data.choices[0].message.content;
+    }
+
+    // 构建 System Prompt
+    function buildSystemPrompt(config) {
+      const source = config.personaSource || 'skill';
+
+      // 精简版动作提示词 - 放在最前面确保 AI 必定读到
+      const actionHint = `## 动作规则
+你可以在回复末尾加 [动作:动画名] 让角色做动作。动作标记不会显示给用户。
+**情绪 → 动作参考：**
+- 开心庆祝：Victory / Jumping Jacks / Victory Fist Pump
+- 愤怒/不满：Angry / Reject
+- 困惑/疑惑：Confused / Dizzy
+- 疲惫/困：Tired / Meditate / Tired Hunched
+- 问候/打招呼：Greeting / Bow / Head Nod
+- 同意/肯定：Head Nod / Yes
+- 否定/拒绝：Reject
+- 思考/倾听：Idle Listening / Idle
+- 说话：Idle_Talking_Loop
+- 蹦跳：Jump_Loop / Jump_Land / NinjaJump_Idle_Loop
+- 跳舞：Dance_Loop / Dance Body Roll / Dance Charleston
+- 惊讶：Backflip / Jump_Start
+- 冥想/打坐：Meditate
+- 走路/跑步：Walk_Loop / Jog_Fwd_Loop / Run Anime
+- 睡觉：Sleeping
+- 后空翻：Backflip
+- 僵尸：Zombie_Idle_Loop / Zombie_Walk_Fwd_Loop
+- 拳击/打架：Punch_Jab / Punch_Cross / Fighting Idle
+- 施法：Spell_Simple_Enter / Spell_Simple_Shoot
+- 悬浮：Levitate Entrance / Levitate Idle
+- 充能：Power Up
+- 游泳：Swim_Idle_Loop / Swim_Fwd_Loop
+- 开车：Driving_Loop
+- 举盾：Idle_Shield_Loop / Idle_Shield_Break
+- 持剑：Sword_Idle / Sword_Attack / Sword_Regular_A / Sword_Regular_B / Sword_Regular_C
+- 持枪：Pistol_Idle_Loop / Pistol_Shoot / Pistol_Reload
+- 农场：Farm_PlantSeed / Farm_Watering / Farm_Harvest
+- 砍树：TreeChopping_Loop
+- 僵尸挠人：Zombie_Scratch
+- 冥想打坐：Meditate
+动作要自然，不要每句都加，根据情绪选择最贴合的。`;
+
+      let prompt;
+
+      if (source === 'skill' && config.skillFileContent) {
+        prompt = config.skillFileContent;
+      } else if (source === 'custom' && config.customSystemPrompt) {
+        prompt = config.customSystemPrompt;
+      } else {
+        prompt = '你是' + petName + '，一个桌面伙伴。你的朋友叫' + userName + '。';
+      }
+
+      prompt += '\n\n' + actionHint;
+      return prompt.replace(/\{petName\}/g, petName).replace(/\{userName\}/g, userName);
+    }
+
+    // 解析动作标记
+    function parseActionFromResponse(response) {
+      // 匹配 [动作:xxx] 或 [action:xxx]，兼容全角/半角冒号
+      const actionMatch = response.match(/\[(?:动作|action)[:：]\s*([^\]]+)\]/i);
+      if (actionMatch) {
+        const action = actionMatch[1].trim();
+        // 去掉动作标记：必须和匹配用同一个正则结构
+        const text = response.replace(/\[(?:动作|action)[:：]\s*[^\]]+\]/gi, '').trim();
+        return { text, action };
+      }
+      return { text: response, action: null };
+    }
+
+    // 事件绑定
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    btnClose.addEventListener('click', () => {
+      window.electronAPI.closeChatWindow();
+    });
+
+    btnMinimize.addEventListener('click', () => {
+      window.electronAPI.minimizeChatWindow();
+    });
+
+    btnClear.addEventListener('click', async () => {
+      chatHistory = [];
+      await window.electronAPI.setConfig('chatHistory', []);
+      chatArea.innerHTML = '';
+      emptyState.style.display = '';
+      chatArea.appendChild(emptyState);
+    });
+
+    // 初始化
+    init();
+  </script>
+</body>
+</html>
